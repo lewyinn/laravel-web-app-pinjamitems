@@ -7,102 +7,96 @@ use App\Models\Loan;
 use App\Models\Log;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class LoanController extends Controller
 {
-    public function loans($userId = null)
+    public function loans()
     {
-        $userId = $userId ?? Auth::id(); // Gunakan user ID yang dioper, atau ID user yang sedang login
+        $user = Auth::user();
+        $items = Item::where('stock', '>', 0)->get();
 
-        // Ambil semua barang yang ada
-        $items = Item::all();
-
-        // Ambil pinjaman berdasarkan user ID
-        $loans = Loan::where('user_id', $userId)->get();
+        if ($user->role === 'admin') {
+            // Admin melihat SEMUA riwayat peminjaman
+            $loans = Loan::with(['user', 'item'])->latest()->get();
+        } else {
+            // User hanya melihat riwayat peminjaman DIA sendiri
+            $loans = Loan::with(['item'])->where('user_id', $user->id)->latest()->get();
+        }
 
         return view('pinjamBarang', compact('items', 'loans'));
     }
 
     public function borrow(Request $request)
     {
-        // Validasi input
         $request->validate([
             'item_id' => 'required|exists:items,id',
-            'user' => 'required|string',
-            'borrow_date' => 'required|date',
-            'description' => 'required|string',
-            'amount' => 'required|integer|min:1|max:' . Item::find($request->item_id)->stock,
+            'amount' => 'required|integer|min:1',
         ]);
 
-        // Ambil data barang yang dipilih
         $item = Item::findOrFail($request->item_id);
 
-        // Pastikan ada cukup stok barang
+        // Cek apakah stok cukup untuk jumlah yang diminta
         if ($item->stock < $request->amount) {
-            return back()->with('error', 'Stok barang tidak mencukupi');
+            return back()->with('error', 'Stok tidak mencukupi! Tersisa: ' . $item->stock);
         }
 
-        // Kurangi stok barang
-        $item->decrement('stock', $request->amount);
+        DB::transaction(function () use ($item, $request) {
+            // Kurangi stok sesuai jumlah input
+            $item->decrement('stock', $request->amount);
 
-        // Simpan data peminjaman ke tabel loans
-        $loan = Loan::create([
-            'user_id' => Auth::id(),
-            'item_id' => $item->id,
-            'borrow_date' => $request->borrow_date,
-            'description' => $request->description,
-            'amount' => $request->amount, // Simpan jumlah peminjaman
-        ]);
+            Loan::create([
+                'user_id'     => Auth::id(),
+                'item_id'     => $item->id,
+                'amount'      => $request->amount, // Simpan jumlahnya
+                'borrow_date' => now(),
+                'status'      => 'borrowed'
+            ]);
 
-        // Catat log peminjaman
-        Log::create([
-            'user_id' => Auth::id(),
-            'item_id' => $item->id,
-            'action' => 'borrow',
-            'amount' => $request->amount, // Simpan jumlah yang dipinjam di log
-        ]);
+            Log::create([
+                'user_id' => Auth::id(),
+                'item_id' => $item->id,
+                'action'  => 'borrow',
+                'amount'  => $request->amount,
+            ]);
+        });
 
-        return back()->with('success', 'Peminjaman berhasil!');
+        return back()->with('success', 'Berhasil meminjam ' . $request->amount . ' unit barang!');
     }
 
-    public function return(Loan $loan)
+    public function return($id) // Pakai ID supaya lebih akurat
     {
-        // Pastikan loan ada
-        if (!$loan) {
-            return back()->with('error', 'Peminjaman tidak ditemukan.');
+        $loan = Loan::findOrFail($id);
+
+        // 1. Keamanan Akses
+        if (Auth::user()->role !== 'admin' && $loan->user_id !== Auth::id()) {
+            return back()->with('error', 'Akses ditolak!');
         }
-    
-        // Cek jika status sudah 'returned'
+
+        // 2. Cegah Pengembalian Ganda
         if ($loan->status === 'returned') {
-            return back()->with('error', 'Barang sudah dikembalikan');
+            return back()->with('error', 'Barang sudah dikembalikan sebelumnya.');
         }
-    
-        // Cek apakah item terkait masih ada (optional)
-        $item = $loan->item;
-        if (!$item) {
-            return back()->with('error', 'Barang yang dipinjam tidak ditemukan.');
-        }
-    
-        // Ambil jumlah item yang dikembalikan
-        $amount = $loan->amount;
-    
-        // Update status dan tanggal pengembalian
-        $loan->status = 'returned';
-        $loan->return_date = now();
-        $loan->save(); // Menyimpan perubahan ke database
-    
-        // Tambahkan stok barang berdasarkan amount
-        $item->increment('stock', $amount); // Increment stok barang sesuai dengan jumlah yang dikembalikan
-    
-        // Catat log dengan deskripsi
-        Log::create([
-            'user_id' => Auth::id(),
-            'item_id' => $item->id,
-            'amount' => $amount,
-            'action' => 'return',
-        ]);
-    
-        return back()->with('success', 'Barang berhasil dikembalikan');
+
+        DB::transaction(function () use ($loan) {
+            // 3. Update Status Peminjaman (Gunakan update langsung ke Model)
+            $loan->update([
+                'status' => 'returned',
+                'return_date' => now(),
+            ]);
+
+            // 4. Tambah stok barang sesuai jumlah yang dipinjam
+            $loan->item->increment('stock', $loan->amount);
+
+            // 5. Catat Log
+            Log::create([
+                'user_id' => Auth::id(),
+                'item_id' => $loan->item_id,
+                'action'  => 'return',
+                'amount'  => $loan->amount,
+            ]);
+        });
+
+        return back()->with('success', 'Barang berhasil dikembalikan dan stok diperbarui!');
     }
-    
 }

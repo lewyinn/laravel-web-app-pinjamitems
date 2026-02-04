@@ -10,6 +10,5 @@ class Item extends Model
     //
     use HasFactory;
 
-    // Menentukan kolom yang dapat diisi melalui mass assignment
-    protected $fillable = ['name', 'description', 'stock'];
+    protected $fillable = ['name', 'description', 'stock', 'kondisi'];
 }

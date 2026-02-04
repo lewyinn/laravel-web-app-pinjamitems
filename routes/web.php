@@ -15,9 +15,9 @@ Route::get('/', function () {
 
 Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/login', [AuthController::class, 'login'])->name('login.post');
     Route::get('/register', [AuthController::class, 'showRegisterForm']);
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register'])->name('register.post');
 });
 
 // Dashboard (akses semua role)
@@ -37,7 +37,7 @@ Route::middleware(['auth', RoleMiddleware::class . ':admin'])->group(function ()
     Route::match(['get', 'post'], '/users', [UserController::class, 'handle'])->name('users');
     Route::put('/users/{user}', [UserController::class, 'handle'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'handle'])->name('users.delete');
-    
+
     Route::match(['get', 'post'], '/items', [ItemController::class, 'handle'])->name('items');
     Route::put('/items/{item}', [ItemController::class, 'handle'])->name('items.update');
     Route::delete('/items/{item}', [ItemController::class, 'handle'])->name('items.delete');

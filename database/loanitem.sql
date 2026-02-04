@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 08, 2024 at 02:02 PM
+-- Generation Time: May 15, 2025 at 04:00 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -81,16 +81,17 @@ CREATE TABLE `items` (
 --
 
 INSERT INTO `items` (`id`, `name`, `description`, `stock`, `created_at`, `updated_at`) VALUES
-(1, 'Laptop', 'Laptop dengan spesifikasi standar untuk keperluan kerja.', 3, '2024-12-05 12:27:36', '2024-12-07 23:50:04'),
+(1, 'Laptop', 'Laptop dengan spesifikasi standar untuk keperluan kerja.', 3, '2024-12-05 12:27:36', '2024-12-20 21:23:20'),
 (2, 'Proyektor', 'Proyektor portabel untuk presentasi.', 5, '2024-12-05 12:27:36', '2024-12-07 23:48:01'),
 (3, 'Kamera DSLR', 'Kamera DSLR untuk keperluan fotografi.', 2, '2024-12-05 12:27:36', '2024-12-05 12:27:36'),
 (4, 'Tripod', 'Tripod universal untuk kamera dan smartphone.', 4, '2024-12-05 12:27:36', '2024-12-07 02:57:48'),
 (5, 'Speaker', 'Speaker portable dengan suara berkualitas tinggi.', 4, '2024-12-05 12:27:36', '2024-12-07 02:35:51'),
-(6, 'Microphone', 'Microphone kondensor untuk perekaman suara.', 8, '2024-12-05 12:27:36', '2024-12-05 12:27:36'),
+(6, 'Microphone', 'Microphone kondensor untuk perekaman suara.', 8, '2024-12-05 12:27:36', '2024-12-20 21:22:30'),
 (7, 'Monitor', 'Monitor 24 inci untuk komputer.', 2, '2024-12-05 12:27:36', '2024-12-05 12:27:36'),
 (8, 'Printer', 'Printer inkjet multifungsi.', 3, '2024-12-05 12:27:36', '2024-12-05 12:27:36'),
 (9, 'Whiteboard', 'Whiteboard magnetik ukuran sedang.', 7, '2024-12-05 12:27:36', '2024-12-05 12:27:36'),
-(10, 'PC All In One', 'PC All In One dengan spesifikasi standar untuk Kebutuhan Belajar Mengajar', 33, '2024-12-07 02:54:35', '2024-12-07 02:54:35');
+(10, 'PC All In One', 'PC All In One dengan spesifikasi standar untuk Kebutuhan Belajar Mengajar', 33, '2024-12-07 02:54:35', '2024-12-07 02:54:35'),
+(11, 'Lamp Minimalis V1', 'Lampu saja', 4, '2024-12-20 21:21:51', '2024-12-20 21:21:51');
 
 -- --------------------------------------------------------
 
@@ -151,7 +152,9 @@ CREATE TABLE `loans` (
 --
 
 INSERT INTO `loans` (`id`, `user_id`, `item_id`, `amount`, `borrow_date`, `return_date`, `status`, `description`, `created_at`, `updated_at`) VALUES
-(1, 1, 1, 2, '2024-12-08', NULL, 'borrowed', 'Main Game', '2024-12-07 23:50:04', '2024-12-07 23:50:04');
+(1, 1, 1, 2, '2024-12-08', NULL, 'borrowed', 'Main Game', '2024-12-07 23:50:04', '2024-12-07 23:50:04'),
+(2, 1, 6, 3, '2024-12-21', '2024-12-21', 'returned', 'Main', '2024-12-20 21:22:23', '2024-12-20 21:22:30'),
+(3, 4, 1, 2, '2024-12-21', '2024-12-21', 'returned', 'Belajar', '2024-12-20 21:23:10', '2024-12-20 21:23:20');
 
 -- --------------------------------------------------------
 
@@ -175,7 +178,11 @@ CREATE TABLE `logs` (
 --
 
 INSERT INTO `logs` (`id`, `action`, `user_id`, `item_id`, `amount`, `timestamp`, `created_at`, `updated_at`) VALUES
-(1, 'borrow', 1, 1, 2, '2024-12-08 06:50:04', '2024-12-07 23:50:04', '2024-12-07 23:50:04');
+(1, 'borrow', 1, 1, 2, '2024-12-08 06:50:04', '2024-12-07 23:50:04', '2024-12-07 23:50:04'),
+(2, 'borrow', 1, 6, 3, '2024-12-21 04:22:23', '2024-12-20 21:22:23', '2024-12-20 21:22:23'),
+(3, 'return', 1, 6, 3, '2024-12-21 04:22:30', '2024-12-20 21:22:30', '2024-12-20 21:22:30'),
+(4, 'borrow', 4, 1, 2, '2024-12-21 04:23:10', '2024-12-20 21:23:10', '2024-12-20 21:23:10'),
+(5, 'return', 4, 1, 2, '2024-12-21 04:23:20', '2024-12-20 21:23:20', '2024-12-20 21:23:20');
 
 -- --------------------------------------------------------
 
@@ -234,8 +241,8 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `user_id`, `ip_address`, `user_agent`, `payload`, `last_activity`) VALUES
-('FEkg4QUhJuEaKOYTe2D88n2E7z4XbAiiLZsPsYGs', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoibzc1MERWUUxaTnRETXRBZFQ0Z2c1S3RNQXM3dGJ2U2ttSEtzVWxobyI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6MjE6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMCI7fXM6MzoidXJsIjthOjE6e3M6ODoiaW50ZW5kZWQiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9pdGVtcyI7fX0=', 1733662680),
-('fMZhyf0FONsKRa5I5LdoXP6suhpjczdhE4Gfn8uP', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOE9hU01WbFU4T1QxQk5wZ090Z3V2NGVCbHRiYkVSZ3huSEs5cEhORCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9pdGVtcyI7fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1733647909);
+('591w0ViG7QyZ4cmV7RG7BgLFXXiUaoioRrOzzzOV', 1, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36', 'YTo0OntzOjY6Il90b2tlbiI7czo0MDoiOXZvaFk0ZVBFektQeVVnd3JVTmxTWEQ0enk5aW5XVUZjNEVzamtKciI7czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9pdGVtcyI7fXM6NjoiX2ZsYXNoIjthOjI6e3M6Mzoib2xkIjthOjA6e31zOjM6Im5ldyI7YTowOnt9fXM6NTA6ImxvZ2luX3dlYl81OWJhMzZhZGRjMmIyZjk0MDE1ODBmMDE0YzdmNThlYTRlMzA5ODlkIjtpOjE7fQ==', 1739758096),
+('KL9rIzsynkUiJtIEvvyw78RjM5DtifyNnIpRtnxC', NULL, '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/132.0.0.0 Safari/537.36', 'YTozOntzOjY6Il90b2tlbiI7czo0MDoiUVpxbjMwNUlSNzBuZTcxcmcwOTlhNlNLa0MzOE8zQXhBS1QwNGI0WCI7czo2OiJfZmxhc2giO2E6Mjp7czozOiJvbGQiO2E6MDp7fXM6MzoibmV3IjthOjA6e319czo5OiJfcHJldmlvdXMiO2E6MTp7czozOiJ1cmwiO3M6Mjc6Imh0dHA6Ly8xMjcuMC4wLjE6ODAwMC9sb2dpbiI7fX0=', 1739619870);
 
 -- --------------------------------------------------------
 
@@ -363,7 +370,7 @@ ALTER TABLE `failed_jobs`
 -- AUTO_INCREMENT for table `items`
 --
 ALTER TABLE `items`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `jobs`
@@ -375,13 +382,13 @@ ALTER TABLE `jobs`
 -- AUTO_INCREMENT for table `loans`
 --
 ALTER TABLE `loans`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `logs`
 --
 ALTER TABLE `logs`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `migrations`

@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('action');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('item_id')->nullable()->constrained()->onDelete('cascade');
+            $table->integer('amount');
             $table->timestamp('timestamp')->useCurrent();
             $table->timestamps();
         });

@@ -11,45 +11,22 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Pastikan pengguna sudah login sebelum mencoba mendapatkan data pengguna
-        if (Auth::check()) {
-            $userRole = Auth::user()->role; // Ambil role user yang sedang login
-            
-            if ($userRole === 'admin') {
-                $items = Item::all();
-                $borrowItems = Loan::where('status', 'borrowed')->count();
-                $returnItems = Loan::where('status', 'returned')->count();
-            } else if( $userRole === 'user') {
-                $items = Loan::where('user_id', Auth::id())->get();
-                $borrowItems = Loan::where('user_id', Auth::id())->where('status', 'borrowed')->count();
-                $returnItems = Loan::where('user_id', Auth::id())->where('status', 'returned')->count();
-            }
+        $user = Auth::user();
 
-            return view('dashboard', compact('userRole', 'items', 'borrowItems', 'returnItems'));
+        if ($user->role === 'admin') {
+            // Admin melihat statistik global
+            $itemsCount = Item::count();
+            $borrowItems = Loan::where('status', 'borrowed')->count();
+            $returnItems = Loan::where('status', 'returned')->count();
+            $items = Item::all(); // Untuk list di dashboard jika perlu
+        } else {
+            // User hanya melihat miliknya sendiri
+            $itemsCount = 0; // User tidak perlu lihat total item gudang
+            $borrowItems = Loan::where('user_id', $user->id)->where('status', 'borrowed')->count();
+            $returnItems = Loan::where('user_id', $user->id)->where('status', 'returned')->count();
+            $items = Loan::where('user_id', $user->id)->get();
         }
 
-        // Jika pengguna belum login, arahkan ke halaman login atau tampilkan pesan
-        return redirect()->route('login')->withErrors(['error' => 'You must be logged in to access this page.']);
+        return view('dashboard', compact('items', 'borrowItems', 'returnItems', 'itemsCount'));
     }
-
-    public function dashboardData(Request $request)
-    {
-        $user = $request->user();
-
-        // Admin dashboard data
-        if ($user->hasRole('Admin')) {
-            return response()->json([
-                'total_item' => Item::count(),
-                'item_dipinjam' => Loan::where('status', 'borrowed')->count(),
-                'item_dikembalikan' => Loan::where('status', 'returned')->count(),
-            ]);
-        }
-
-        // Non-admin (user) dashboard data
-        return response()->json([
-            'item_dipinjam' => Loan::where('user_id', $user->id)->where('status', 'borrowed')->count(),
-            'item_dikembalikan' => Loan::where('user_id', $user->id)->where('status', 'returned')->count(),
-        ]);
-    }
-
 }

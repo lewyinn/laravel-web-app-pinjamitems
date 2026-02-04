@@ -21,6 +21,7 @@ class ItemController extends Controller
                 'name' => 'required',
                 'description' => 'nullable',
                 'stock' => 'required|integer|min:1',
+                'kondisi' => 'required|string|max:255',
             ]);
 
             // Menambahkan item baru
@@ -37,6 +38,7 @@ class ItemController extends Controller
                 'name' => 'required',
                 'description' => 'nullable',
                 'stock' => 'required|integer|min:1',
+                'kondisi' => 'required|string|max:255',
             ]);
 
             // Temukan item berdasarkan ID
